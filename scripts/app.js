@@ -27,7 +27,7 @@ class CurrencyConverter {
 
     registerServiceWorker() {
         if (!navigator.serviceWorker) return;
-        navigator.serviceWorker.register('sw.js').then(reg => console.log(reg));
+        navigator.serviceWorker.register('/scripts/sw.js').then(reg => console.log(reg));
     }
 
     getCurrencies() {
