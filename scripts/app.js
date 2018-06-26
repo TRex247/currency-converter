@@ -1,5 +1,5 @@
 const conversionBaseURL = 'https://free.currencyconverterapi.com/api/v5/convert';
-const currenciesURL = 'https://free.currencyconverterapi.com/api/v5/currencies';
+const currenciesApiURL = 'https://free.currencyconverterapi.com/api/v5/currencies';
 
 function getCurrencyList(currencies) {
     let currencyList = '';
@@ -21,10 +21,17 @@ class CurrencyConverter {
         this.convertButton.addEventListener('click', () => {
             this.convertCurrency();
         });
+
+        //this.registerServiceWorker();
+    }
+
+    registerServiceWorker() {
+        if (!navigator.serviceWorker) return;
+        navigator.serviceWorker.register('sw.js').then(reg => console.log(reg));
     }
 
     getCurrencies() {
-        fetch(currenciesURL)
+        fetch(currenciesApiURL)
             .then(
                 response => {
                     if (response.status !== 200) {
