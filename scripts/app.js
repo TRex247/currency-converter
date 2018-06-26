@@ -35,7 +35,19 @@ class CurrencyConverter {
 
                     // Examine the text in the response
                     response.json().then(data => {
-                        const dataValues = Object.values(data.results);
+                        const dataValues = Object.values(data.results).sort((a, b) => {
+                            var nameA = a.currencyName.toUpperCase(); // ignore upper and lowercase
+                            var nameB = b.currencyName.toUpperCase(); // ignore upper and lowercase
+                            if (nameA < nameB) {
+                                return -1;
+                            }
+                            if (nameA > nameB) {
+                                return 1;
+                            }
+
+                            // names must be equal
+                            return 0;
+                        });
                         console.log(data.results);
                         console.log(dataValues);
                         this.fromSelect.innerHTML = this.populateSelectList(dataValues);
