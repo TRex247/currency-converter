@@ -4,7 +4,7 @@ const currenciesURL = 'https://free.currencyconverterapi.com/api/v5/currencies';
 function getCurrencyList(currencies) {
     let currencyList = '';
     for (let key in currencies) {
-        currencyList += `<option value="${currencies[key].id}" data-symbol="${currencies[key].currencySymbol}">${currencies[key].currencyName}</option>
+        currencyList += `<option value="${currencies[key].id}" data-symbol="${currencies[key].currencySymbol}">${currencies[key].currencyName} (${currencies[key].id})</option>
         `;
     }
     return currencyList;
@@ -46,12 +46,6 @@ class CurrencyConverter {
     populateSelectList(currencies) {
         return `<option selected>Choose...</option>
                 ${getCurrencyList(currencies)}`;
-    }
-
-    populateSelectLists() {
-        const currencyData = this.getCurrencies();
-        this.fromSelect.innerHTML = this.populateSelectList(currencyData);
-        this.toSelect.innerHTML = this.populateSelectList(currencyData);
     }
 
     getFromCurrency() {
