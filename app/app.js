@@ -10,6 +10,16 @@ function getCurrencyList(currencies) {
     return currencyList;
 }
 
+function openDatabase() {
+    if (!navigator.serviceWorker) {
+        return Promise.resolve();
+    }
+
+    return idb.open('cc', 1, upgradeDb => {
+        const store = upgradeDb.createObjectStore('conversion-rates');
+    });
+}
+
 class CurrencyConverter {
     constructor(fromSelect, toSelect, amountInput, convertedInput, convertButton) {
         this.fromSelect = document.getElementById(fromSelect);
@@ -17,6 +27,7 @@ class CurrencyConverter {
         this.amountInput = document.getElementById(amountInput);
         this.convertedInput = document.getElementById(convertedInput);
         this.convertButton = document.getElementById(convertButton);
+        this.dbPromise = openDatabase();
 
         this.convertButton.addEventListener('click', () => {
             this.convertCurrency();
@@ -86,27 +97,51 @@ class CurrencyConverter {
             const toID = this.getTo();
             const apiURL = `${conversionBaseURL}?q=${fromID}_${toID}&compact=ultra`;
             fetch(apiURL)
-                .then(
-                    function(response) {
-                        if (response.status !== 200) {
-                            console.log('Looks like there was a problem. Status Code: ' +
-                                response.status);
-                            return;
-                        }
-
-                        response.json().then(data => {
-                            const rate = data[`${fromID}_${toID}`]
-                            console.log(data);
-                            const convertedAmount = document.getElementById('amount').value * rate;
-                            document.getElementById('resultInput').value = convertedAmount.toFixed(2);
-                        });
+                .then(response => {
+                    if (response.status !== 200) {
+                        console.log('Looks like there was a problem. Status Code: ' +
+                            response.status);
+                        return;
                     }
-                )
+
+                    response.json().then(data => {
+                        const rate = data[`${fromID}_${toID}`];
+                        console.log(data);
+                        const convertedAmount = document.getElementById('amount').value * rate;
+                        document.getElementById('resultInput').value = convertedAmount.toFixed(2);
+                    });
+                })
                 .catch(function(err) {
                     console.log('Fetch Error :-S', err);
                 });
         }
     }
+
+    getConversionRate(fromID, toID) {
+        return this.dbPromise.then(db => {
+            if (!db) return;
+
+            const tx = db.transaction('conversion-rates', 'readwrite');
+            const store = tx.objectStore('conversion-rates');
+            return store.get(`${fromID}_${toID}`); // Get conversion rate from store
+        }).then(val => {
+            const apiURL = `${conversionBaseURL}?q=${fromID}_${toID},${toID}_${fromID}&compact=ultra`;
+            // Fetch for updated conversion rates to be updated in the store
+            const newVal = fetch(apiURL).then(response => {
+                if (response.status !== 200) {
+                    console.log('Looks like there was a problem. Status Code: ' +
+                        response.status);
+                    return;
+                }
+                return response.json().then(data => {
+                    const rate = data[`${fromID}_${toID}`];
+                    const tx = db.transaction('conversion-rates', 'readwrite');
+                    const store = tx.objectStore('conversion-rates');
+                });
+            });
+        });
+    }
+
 }
 
 
