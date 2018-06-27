@@ -10,7 +10,7 @@ self.addEventListener('install', event => {
         caches.open(staticCacheName).then(cache => {
             return cache.addAll([
                 'index.html',
-                './scripts/app.js',
+                'app.js',
                 'main.css',
                 'https://fonts.googleapis.com/css?family=Roboto:300,400,500',
                 'https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css'
