@@ -5,15 +5,15 @@ const allCaches = [
     staticCacheName,
     contentCurrCache
 ];
-
+///
 self.addEventListener('install', event => {
     event.waitUntil(
         caches.open(staticCacheName).then(cache => {
             return cache.addAll([
                 'index.html',
                 'app.js',
+                'idb.js',
                 'main.css',
-                'https://github.com/jakearchibald/idb/blob/master/lib/idb.js',
                 'https://fonts.googleapis.com/css?family=Roboto:300,400,500',
                 'https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css'
             ]);

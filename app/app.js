@@ -95,21 +95,9 @@ class CurrencyConverter {
         if (this.amountInput.value) {
             const fromID = this.getFrom();
             const toID = this.getTo();
-            const apiURL = `${conversionBaseURL}?q=${fromID}_${toID}&compact=ultra`;
-            fetch(apiURL)
-                .then(response => {
-                    if (response.status !== 200) {
-                        console.log('Looks like there was a problem. Status Code: ' +
-                            response.status);
-                        return;
-                    }
-
-                    response.json().then(data => {
-                        const rate = data[`${fromID}_${toID}`];
-                        console.log(data);
-                        const convertedAmount = document.getElementById('amount').value * rate;
-                        document.getElementById('resultInput').value = convertedAmount.toFixed(2);
-                    });
+            this.getConversionRate(fromID, toID).then(rate => {
+                    const convertedAmount = document.getElementById('amount').value * rate;
+                    document.getElementById('resultInput').value = convertedAmount.toFixed(2);
                 })
                 .catch(function(err) {
                     console.log('Fetch Error :-S', err);
@@ -118,26 +106,31 @@ class CurrencyConverter {
     }
 
     getConversionRate(fromID, toID) {
-        return this.dbPromise.then(db => {
-            if (!db) return;
+        const apiURL = `${conversionBaseURL}?q=${fromID}_${toID},${toID}_${fromID}&compact=ultra`;
+        const dbP = this.dbPromise;
 
-            const tx = db.transaction('conversion-rates', 'readwrite');
-            const store = tx.objectStore('conversion-rates');
-            return store.get(`${fromID}_${toID}`); // Get conversion rate from store
-        }).then(val => {
-            const apiURL = `${conversionBaseURL}?q=${fromID}_${toID},${toID}_${fromID}&compact=ultra`;
-            // Fetch for updated conversion rates to be updated in the store
-            const newVal = fetch(apiURL).then(response => {
-                if (response.status !== 200) {
-                    console.log('Looks like there was a problem. Status Code: ' +
-                        response.status);
-                    return;
-                }
-                return response.json().then(data => {
-                    const rate = data[`${fromID}_${toID}`];
+        return fetch(apiURL).then(response => {
+            if (response.status !== 200) {
+                return Promise.reject(new Error(response.statusText));
+            }
+            return response.json().then(data => {
+
+                const rate = data[`${fromID}_${toID}`]
+                dbP.then(db => {
                     const tx = db.transaction('conversion-rates', 'readwrite');
                     const store = tx.objectStore('conversion-rates');
+                    store.put(data[`${fromID}_${toID}`], `${fromID}_${toID}`);
+                    store.put(data[`${toID}_${fromID}`], `${toID}_${fromID}`);
                 });
+                return rate;
+            });
+        }).catch(() => {
+            return dbP.then(db => {
+                if (!db) return;
+
+                const tx = db.transaction('conversion-rates', 'readwrite');
+                const store = tx.objectStore('conversion-rates');
+                return store.get(`${fromID}_${toID}`); // Get conversion rate from store
             });
         });
     }
