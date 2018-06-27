@@ -1,8 +1,9 @@
 const currenciesURL = 'https://free.currencyconverterapi.com/api/v5/currencies';
-const staticCacheName = 'cc-static-v0';
+const staticCacheName = 'cc-static-v1';
 const contentCurrCache = 'cc-currencies';
 const allCaches = [
-    staticCacheName
+    staticCacheName,
+    contentCurrCache
 ];
 
 self.addEventListener('install', event => {
@@ -42,12 +43,13 @@ self.addEventListener('fetch', event => {
             event.respondWith(caches.match('index.html'));
             return;
         }
-        // TODO: respond to currency api url by responding with
-        // the return value of serveCurrencies(event.request)
-        if (requestUrl.pathname === currenciesURL) {
-            event.respondWith(serveCurrencies(event.request));
-            return;
-        }
+    }
+
+    // TODO: respond to currency api url by responding with
+    // the return value of serveCurrencies(event.request)
+    if (requestUrl.href === currenciesURL) {
+        event.respondWith(serveCurrencies(event.request));
+        return;
     }
 
     event.respondWith(
