@@ -39,7 +39,7 @@ class CurrencyConverter {
                             response.status);
                         return;
                     }
-
+                    //console.log(response);
                     // Examine the text in the response
                     response.json().then(data => {
                         const dataValues = Object.values(data.results).sort((a, b) => {
