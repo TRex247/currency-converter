@@ -21,17 +21,18 @@ function openDatabase() {
 }
 
 class CurrencyConverter {
-    constructor(fromSelect, toSelect, amountInput, convertedInput, convertButton) {
+    constructor(fromSelect, toSelect, amountInput, convertedInput, switchBtn, convertButton) {
         this.fromSelect = document.getElementById(fromSelect);
         this.toSelect = document.getElementById(toSelect);
         this.amountInput = document.getElementById(amountInput);
         this.convertedInput = document.getElementById(convertedInput);
         this.convertButton = document.getElementById(convertButton);
+        this.switchBtn = document.getElementById(switchBtn)
         this.dbPromise = openDatabase();
 
-        this.convertButton.addEventListener('click', () => {
-            this.convertCurrency();
-        });
+        this.convertButton.addEventListener('click', () => this.convertCurrency());
+
+        this.switchBtn.addEventListener('click', () => this.switchCurrencies());
 
         this.registerServiceWorker();
     }
@@ -91,6 +92,13 @@ class CurrencyConverter {
         return this.toSelect[this.toSelect.selectedIndex].value;
     }
 
+    switchCurrencies() {
+        const fromID = this.fromSelect.selectedIndex;
+        const toID = this.toSelect.selectedIndex;
+        this.fromSelect.selectedIndex = toID;
+        this.toSelect.selectedIndex = fromID;
+    }
+
     convertCurrency() {
         if (this.amountInput.value) {
             const fromID = this.getFrom();
@@ -128,7 +136,7 @@ class CurrencyConverter {
             return dbP.then(db => {
                 if (!db) return;
 
-                const tx = db.transaction('conversion-rates', 'readwrite');
+                const tx = db.transaction('conversion-rates');
                 const store = tx.objectStore('conversion-rates');
                 return store.get(`${fromID}_${toID}`); // Get conversion rate from store
             });
@@ -138,5 +146,5 @@ class CurrencyConverter {
 }
 
 
-const myConverter = new CurrencyConverter('fromCurrency', 'toCurrency', 'amount', 'resultInput', 'convertBtn');
+const myConverter = new CurrencyConverter('fromCurrency', 'toCurrency', 'amount', 'resultInput', 'switchBtn', 'convertBtn');
 myConverter.getCurrencies();

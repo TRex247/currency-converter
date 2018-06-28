@@ -1,5 +1,5 @@
 const currenciesURL = 'https://free.currencyconverterapi.com/api/v5/currencies';
-const staticCacheName = 'cc-static-v2';
+const staticCacheName = 'cc-static-v9';
 const contentCurrCache = 'cc-currencies';
 const allCaches = [
     staticCacheName,
@@ -15,6 +15,7 @@ self.addEventListener('install', event => {
                 'idb.js',
                 'main.css',
                 'https://fonts.googleapis.com/css?family=Roboto:300,400,500',
+                'https://use.fontawesome.com/releases/v5.1.0/css/all.css',
                 'https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css'
             ]);
         })
