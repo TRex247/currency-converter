@@ -1,15 +1,16 @@
 {
-  "name": "currency-converter",
-  "version": "1.0.0",
-  "description": "An app that does currency conversion via a currency conversion api.",
-  "main": "gulpfile.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "Tonye Roberts",
-  "license": "ISC",
-  "devDependencies": {
-    "browser-sync": "^2.24.5",
-    "gulp": "^3.9.1"
-  }
+    "name": "currency-converter",
+    "version": "1.0.0",
+    "description": "An app that does currency conversion via a currency conversion api.",
+    "main": "gulpfile.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "start": "gulp browserSync"
+    },
+    "author": "Tonye Roberts",
+    "license": "ISC",
+    "devDependencies": {
+        "browser-sync": "^2.24.5",
+        "gulp": "^3.9.1"
+    }
 }
