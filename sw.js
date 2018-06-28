@@ -1,5 +1,5 @@
 const currenciesURL = 'https://free.currencyconverterapi.com/api/v5/currencies';
-const staticCacheName = 'cc-static-v1';
+const staticCacheName = 'cc-static-v2';
 const contentCurrCache = 'cc-currencies';
 const allCaches = [
     staticCacheName,
@@ -42,7 +42,7 @@ self.addEventListener('fetch', event => {
 
     if (requestUrl.origin === location.origin) {
         if (requestUrl.pathname === '/' || requestUrl.pathname === 'index.html') {
-            event.respondWith(caches.match('index.html'));
+            event.respondWith(caches.match('/index.html'));
             return;
         }
     }
