@@ -1,5 +1,5 @@
 const currenciesURL = 'https://free.currencyconverterapi.com/api/v5/currencies';
-const staticCacheName = 'cc-static-v3';
+const staticCacheName = 'cc-static-v1';
 const contentCurrCache = 'cc-currencies';
 const allCaches = [
     staticCacheName,
