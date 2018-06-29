@@ -92,6 +92,11 @@ class CurrencyConverter {
         return this.toSelect[this.toSelect.selectedIndex].value;
     }
 
+    getToSymbol() {
+        const toOption = this.toSelect[this.toSelect.selectedIndex]
+        return toOption.dataset.symbol !== 'undefined' ? toOption.dataset.symbol : toOption.value;
+    }
+
     switchCurrencies() {
         const fromID = this.fromSelect.selectedIndex;
         const toID = this.toSelect.selectedIndex;
@@ -103,9 +108,11 @@ class CurrencyConverter {
         if (this.amountInput.value) {
             const fromID = this.getFrom();
             const toID = this.getTo();
+            const symbol = this.getToSymbol();
             this.getConversionRate(fromID, toID).then(rate => {
                     const convertedAmount = document.getElementById('amount').value * rate;
-                    document.getElementById('resultInput').value = convertedAmount.toFixed(2);
+                    document.getElementById('resultInput').value = convertedAmount.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+                    document.getElementById('currencySign').innerText = symbol;
                 })
                 .catch(function(err) {
                     console.log('Fetch Error :-S', err);
