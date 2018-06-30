@@ -110,7 +110,8 @@ class CurrencyConverter {
             const toID = this.getTo();
             const symbol = this.getToSymbol();
             this.getConversionRate(fromID, toID).then(rate => {
-                    const convertedAmount = document.getElementById('amount').value * rate;
+                    //const newRate = rate || 0;
+                    const convertedAmount = document.getElementById('amount').value * (rate || 0);
                     document.getElementById('resultInput').value = convertedAmount.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
                     document.getElementById('currencySign').innerText = symbol;
                 })
