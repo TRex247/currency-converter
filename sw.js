@@ -5,7 +5,7 @@ const allCaches = [
     staticCacheName,
     contentCurrCache
 ];
-///
+// Catching files to be used offline when the service worker installs.
 self.addEventListener('install', event => {
     event.waitUntil(
         caches.open(staticCacheName).then(cache => {
@@ -22,6 +22,7 @@ self.addEventListener('install', event => {
     );
 });
 
+// Deleting older versions of cache when activating service worker.
 self.addEventListener('activate', event => {
     event.waitUntil(
         caches.keys().then(cacheNames => {
@@ -40,17 +41,17 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
     const requestUrl = new URL(event.request.url);
 
+    // Returning the cached index.html file when the web app requests for the base url or the index.html file
     if (requestUrl.origin === location.origin) {
         if (requestUrl.pathname === '/' || requestUrl.pathname === '/currency-converter/' || requestUrl.pathname.endsWith('index.html')) {
             event.respondWith(caches.match('index.html').then(response => {
-                return response || caches.match('currency-converter/index.html');
+                return response || caches.match('currency-converter/index.html'); // A little hack for getting the cached index.html on GitHub Pages
             }));
             return;
         }
     }
 
-    // TODO: respond to currency api url by responding with
-    // the return value of serveCurrencies(event.request)
+    // Respond to the request for the list of currencies with serveCurrencies(event.request)
     if (requestUrl.href === currenciesURL) {
         event.respondWith(serveCurrencies(event.request));
         return;
@@ -63,6 +64,8 @@ self.addEventListener('fetch', event => {
     );
 });
 
+// Returns the cached list of currencies and then updates the cached list with the response from the api
+// or returns the list directly from api if the cahce is empty.
 function serveCurrencies(request) {
     return caches.open(contentCurrCache).then(cache => {
         return cache.match(request).then(response => {
