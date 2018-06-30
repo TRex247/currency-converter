@@ -1,6 +1,7 @@
 const conversionBaseURL = 'https://free.currencyconverterapi.com/api/v5/convert';
 const currenciesApiURL = 'https://free.currencyconverterapi.com/api/v5/currencies';
 
+// Returns the list of currenciees in select list options.
 function getCurrencyList(currencies) {
     let currencyList = '';
     for (let key in currencies) {
@@ -10,14 +11,13 @@ function getCurrencyList(currencies) {
     return currencyList;
 }
 
+// Return opened indexed DB and create store for conversion rates
 function openDatabase() {
     if (!navigator.serviceWorker) {
         return Promise.resolve();
     }
 
-    return idb.open('cc', 1, upgradeDb => {
-        const store = upgradeDb.createObjectStore('conversion-rates');
-    });
+    return idb.open('cc', 1, upgradeDb => upgradeDb.createObjectStore('conversion-rates'));
 }
 
 class CurrencyConverter {
@@ -42,6 +42,7 @@ class CurrencyConverter {
         navigator.serviceWorker.register('sw.js').then(reg => console.log(reg));
     }
 
+    // Fetch list of currencies and populate the to and from select lists
     getCurrencies() {
         fetch(currenciesApiURL)
             .then(
@@ -51,9 +52,8 @@ class CurrencyConverter {
                             response.status);
                         return;
                     }
-                    //console.log(response);
-                    // Examine the text in the response
                     response.json().then(data => {
+                        // Get list of currencies sortd by their currency names
                         const dataValues = Object.values(data.results).sort((a, b) => {
                             var nameA = a.currencyName.toUpperCase(); // ignore upper and lowercase
                             var nameB = b.currencyName.toUpperCase(); // ignore upper and lowercase
@@ -89,9 +89,9 @@ class CurrencyConverter {
     }
 
     getTo() {
-        return this.toSelect[this.toSelect.selectedIndex].value;
-    }
-
+            return this.toSelect[this.toSelect.selectedIndex].value;
+        }
+        // Returns currency symbol or currency id if symbol can't be found.
     getToSymbol() {
         const toOption = this.toSelect[this.toSelect.selectedIndex]
         return toOption.dataset.symbol !== 'undefined' ? toOption.dataset.symbol : toOption.value;
@@ -105,22 +105,22 @@ class CurrencyConverter {
     }
 
     convertCurrency() {
-        if (this.amountInput.value) {
-            const fromID = this.getFrom();
-            const toID = this.getTo();
-            const symbol = this.getToSymbol();
-            this.getConversionRate(fromID, toID).then(rate => {
-                    //const newRate = rate || 0;
-                    const convertedAmount = document.getElementById('amount').value * (rate || 0);
-                    document.getElementById('resultInput').value = convertedAmount.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
-                    document.getElementById('currencySign').innerText = symbol;
-                })
-                .catch(function(err) {
-                    console.log('Fetch Error :-S', err);
-                });
-        }
-    }
+            if (this.amountInput.value) {
+                const fromID = this.getFrom();
+                const toID = this.getTo();
+                const symbol = this.getToSymbol();
+                this.getConversionRate(fromID, toID).then(rate => {
 
+                        const convertedAmount = document.getElementById('amount').value * (rate || 0);
+                        document.getElementById('resultInput').value = convertedAmount.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+                        document.getElementById('currencySign').innerText = symbol;
+                    })
+                    .catch(function(err) {
+                        console.log('Fetch Error :-S', err);
+                    });
+            }
+        }
+        // Returns conversion rate from api and updates rate in the indexed DB or try to get directly from indexed DB if fetch fails.
     getConversionRate(fromID, toID) {
         const apiURL = `${conversionBaseURL}?q=${fromID}_${toID},${toID}_${fromID}&compact=ultra`;
         const dbP = this.dbPromise;
@@ -153,6 +153,6 @@ class CurrencyConverter {
 
 }
 
-
+// Initialise CurrencyConverter and call the getCurrency function to populate the to and from select lists.
 const myConverter = new CurrencyConverter('fromCurrency', 'toCurrency', 'amount', 'resultInput', 'switchBtn', 'convertBtn');
 myConverter.getCurrencies();
